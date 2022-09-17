@@ -97,7 +97,7 @@ class Frontend:
         #           f'Z coordinate:\t\t{z_pos * 1000}\n'
         #           f'Vergence angle:\t\t{vergence}\n')
         if server is not None:
-            server.send_message_to_all(json.dumps({'x': x_pos * 200, 'y': y_pos * 200, 'z': z_pos * 100}))
+            server.send_message_to_all(json.dumps({'x': x_pos * 5, 'y': y_pos * 5, 'z': z_pos * 100}))
 
     def _handle_event_stream(self, event_type, _timestamp, *_args):
         ''' Prints event data to the console '''

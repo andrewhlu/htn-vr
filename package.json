@@ -1,0 +1,22 @@
+{
+  "name": "htn-vr",
+  "version": "1.0.0",
+  "description": "VR game project for HTN 2022",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msmel01/htn-vr.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/msmel01/htn-vr/issues"
+  },
+  "homepage": "https://github.com/msmel01/htn-vr#readme",
+  "dependencies": {
+    "three": "^0.144.0"
+  }
+}

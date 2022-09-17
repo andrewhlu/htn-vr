@@ -1,2 +1,3 @@
-*.pem
-
+.gitignore
+node_modules/
+./pywin.py
