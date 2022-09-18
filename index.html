@@ -6,7 +6,6 @@
     <body>
         <script src="index.js"></script>
 
-
         <a-scene>
             <!-- Camera and Motion Controllers -->
 			<a-entity id="camera-rig">
@@ -23,6 +22,18 @@
                 <a-entity oculus-touch-controls="hand: left"></a-entity>
                 <a-entity oculus-touch-controls="hand: right" right-hand></a-entity>
 			</a-entity>
+
+            <!-- Calibration marker -->
+            <a-assets>
+                <img id="target" src="target.png">
+            </a-assets>
+
+            <!-- Textured circle parallel to ground. -->
+            <!-- <a-circle src="#target" radius="0.05" position="0 1 -1"></a-circle>
+            <a-circle src="#target" radius="0.05" position="-0.35 0.83 -1"></a-circle>
+            <a-circle src="#target" radius="0.05" position="-0.35 1.17 -1"></a-circle>
+            <a-circle src="#target" radius="0.05" position="0.35 0.83 -1"></a-circle>
+            <a-circle src="#target" radius="0.05" position="0.35 1.17 -1"></a-circle> -->
 
             <a-box id="test-box" position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
             <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>

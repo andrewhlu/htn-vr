@@ -1,11 +1,13 @@
 ''' Demonstrates how to subscribe to and handle data from gaze and event streams '''
 
-import time, json
-from websocket_server import WebsocketServer
-
 import adhawkapi
 import adhawkapi.frontend
 from adhawkapi import Events, MarkerSequenceMode, PacketType
+import json
+from websocket_server import WebsocketServer
+
+server = None
+frontend = None
 
 def new_client(client, server):
 	print("Connection Established")
@@ -17,14 +19,20 @@ def message_received(client, server, message):
 
     print("Message received: ", data)
 
-    if data['type'] == "calibration":
+    if data['type'] == "quickstart":
         # Runs a Quick Start at the user's command. This tunes the scan range and frequency to best suit the user's eye
         # and face shape, resulting in better tracking data. For the best quality results in your application, you
         # should also perform a calibration before using gaze data.
+        print("Performing Quick Start")
         frontend.quickstart()
+    elif data['type'] == "calibration-start":
+        print("Starting Calibration Sequence")
 
-server = None
-frontend = None
+
+
+
+    elif data['type'] == "calibration-point":
+        print("Point Received in Calibration Sequence")
 
 class Frontend:
     ''' Frontend communicating with the backend '''
@@ -82,9 +90,10 @@ class Frontend:
         global server
 
         ''' Prints gaze data to the console '''
+        # print("Looking!" + str(timestamp))
 
-        # # Only log at most once per second
-        # if self._last_console_print and timestamp < self._last_console_print + 1:
+        # Only log at most once per second
+        # if self._last_console_print and timestamp < self._last_console_print + 0.25:
         #     return
 
 
@@ -97,17 +106,18 @@ class Frontend:
         #           f'Z coordinate:\t\t{z_pos * 1000}\n'
         #           f'Vergence angle:\t\t{vergence}\n')
         if server is not None:
-            server.send_message_to_all(json.dumps({'x': x_pos * 200, 'y': y_pos * 200, 'z': z_pos * 100}))
+            server.send_message_to_all(json.dumps({'type': "gaze", 'x': x_pos * 200, 'y': y_pos * 200, 'z': z_pos * 100}))
 
     def _handle_event_stream(self, event_type, _timestamp, *_args):
-        ''' Prints event data to the console '''
-        if self._allow_output:
+        global server
 
-            # We discriminate between events based on their type
-            if event_type == Events.BLINK.value:
-                print('Blink!')
-            elif event_type == Events.SACCADE.value:
-                print('Saccade!')
+        if event_type == Events.BLINK.value:
+            print('Blink!')
+
+            if server is not None:
+                server.send_message_to_all(json.dumps({'type': "blink"}))
+        elif event_type == Events.SACCADE.value:
+            print('Saccade!')
 
     def _handle_connect_response(self, error):
         ''' Handler for backend connections '''
@@ -135,7 +145,6 @@ class Frontend:
             # Flags the frontend as connected
             self.connected = True
 
-
 def main():
     global server
     global frontend
@@ -148,26 +157,21 @@ def main():
         while not frontend.connected:
             pass  # Waits for the frontend to be connected before proceeding
 
-        input('Press Enter to run a Quick Start.')
-
         # Runs a Quick Start at the user's command. This tunes the scan range and frequency to best suit the user's eye
         # and face shape, resulting in better tracking data. For the best quality results in your application, you
         # should also perform a calibration before using gaze data.
         frontend.quickstart()
 
+        print('Quick start complete, starting server')
+
         server = WebsocketServer(port=8000, host="0.0.0.0")
         server.set_fn_new_client(new_client)
         server.set_fn_message_received(message_received)
         server.run_forever()
-
-        # while True:
-        #     # Loops while the data streams come in
-        #     time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
 
         # Allows the frontend to be shut down robustly on a keyboard interrupt
         frontend.shutdown()
-
 
 if __name__ == '__main__':
     main()
