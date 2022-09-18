@@ -1,4 +1,5 @@
 import * as THREE from 'https://cdn.skypack.dev/three';
+import * as ThreeMeshUI from 'https://cdn.skypack.dev/three-mesh-ui';
 import {VRButton} from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/webxr/VRButton.js';
 import {BoxLineGeometry} from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/geometries/BoxLineGeometry.js';
 
@@ -7,7 +8,7 @@ let camera, scene, renderer;
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 
-let room, room2;
+let room, room2, button, button2;
 
 let count = 0;
 const radius = 0.08;
@@ -49,13 +50,16 @@ serverWs.onmessage = (event) => {
             // camera.position.set(0, 1.6, 3);
             room.position.set( 0, 3, 0 );
             room2.position.set( 10, 3, 0 );
-            console.log('in here');
+            button.position.set(0, -1, -1);
+            button2.position.set(10, -1, -1);
             // room.geometry.translate( -10, 3, 0 );
             // room2.geometry.translate( 10, 3, 0 );
         } else {
             // camera.position.set(10, 1.6, 3);
             room.position.set( 10, 3, 0 );
             room2.position.set( 0, 3, 0 );
+            button.position.set(10, -1, -1);
+            button2.position.set(0.5, -1, -1);
             // room.geometry.translate( 10, 3, 0 );
             // room2.geometry.translate( -10, 3, 0 );
         };
@@ -71,11 +75,10 @@ function init() {
 
     camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 10 );
     camera.position.set( 0, 1.6, 3 );
-
     // can change ******************************************************
     room = new THREE.LineSegments(
         new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ),
-        new THREE.LineBasicMaterial( { color: 0x808080 } )
+        new THREE.LineBasicMaterial( { color: 0xff0000 } )
     );
     // room.geometry.translate( 0, 3, 0 );
     // room.geometry.translate( 0, 3, 0 );
@@ -83,13 +86,13 @@ function init() {
 
     room2 = new THREE.LineSegments(
         new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ),
-        new THREE.LineBasicMaterial( { color: 0x808080 } )
+        new THREE.LineBasicMaterial( { color: 0x00ff00 } )
     );
     // room2.geometry.translate( 10, 3, 0 );
 
     room.position.set( 0, 3, 0 );
     room2.position.set( 10, 3, 0 );
-    
+
     scene.add( room2 );
 
     
@@ -100,23 +103,66 @@ function init() {
     scene.add( light );
 
     const geometry = new THREE.IcosahedronGeometry( radius, 3 );
+    button = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0xffffff } ) );
+    button.position.set( 0, -1, -1);
+    room.add(button);
+
+    const buttonOptions = {
+		width: 0.4,
+		height: 0.15,
+		justifyContent: 'center',
+		offset: 0.05,
+		margin: 0.02,
+		borderRadius: 0.075
+	};
+
+    const hoveredStateAttributes = {
+		state: 'hovered',
+		attributes: {
+			offset: 0.035,
+			backgroundColor: new THREE.Color( 0x999999 ),
+			backgroundOpacity: 1,
+			fontColor: new THREE.Color( 0xffffff )
+		},
+	};
+
+	const idleStateAttributes = {
+		state: 'idle',
+		attributes: {
+			offset: 0.035,
+			backgroundColor: new THREE.Color( 0x666666 ),
+			backgroundOpacity: 0.3,
+			fontColor: new THREE.Color( 0xffffff )
+		},
+	};
     
-    for ( let i = 0; i < 200; i ++ ) {
 
-        const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+    const buttonFirst = new ThreeMeshUI.Block( buttonOptions );
 
-        object.position.x = Math.random() * 4 - 2;
-        object.position.y = Math.random() * 4;
-        object.position.z = Math.random() * 4 - 2;
+    buttonFirst.add(
+		new ThreeMeshUI.Text( { content: 'first' } )
+	);
 
-        object.userData.velocity = new THREE.Vector3();
-        object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-        object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-        object.userData.velocity.z = Math.random() * 0.01 - 0.005;
+    button2 = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0xff0000 } ) );
+    button2.position.set( 10, -1, -1);
+    room2.add(button2);
 
-        room.add( object );
+    // for ( let i = 0; i < 200; i ++ ) {
 
-    }
+    //     const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+
+    //     object.position.x = Math.random() * 4 - 2;
+    //     object.position.y = Math.random() * 4;
+    //     object.position.z = Math.random() * 4 - 2;
+
+    //     object.userData.velocity = new THREE.Vector3();
+    //     object.userData.velocity.x = Math.random() * 0.01 - 0.005;
+    //     object.userData.velocity.y = Math.random() * 0.01 - 0.005;
+    //     object.userData.velocity.z = Math.random() * 0.01 - 0.005;
+
+    //     room.add( object );
+
+    // }
     //********************************************************** */
 
     renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -231,19 +277,20 @@ function onWindowResize() {
 
 }
 
+
 function handleController( controller ) {
 
     if ( controller.userData.isSelecting ) {
 
-        const object = room.children[ count ++ ];
+        // const object = room.children[ count ++ ];
 
-        object.position.copy( controller.position );
-        object.userData.velocity.x = ( Math.random() - 0.5 ) * 3;
-        object.userData.velocity.y = ( Math.random() - 0.5 ) * 3;
-        object.userData.velocity.z = ( Math.random() - 9 );
-        object.userData.velocity.applyQuaternion( controller.quaternion );
+        // object.position.copy( controller.position );
+        // object.userData.velocity.x = ( Math.random() - 0.5 ) * 3;
+        // object.userData.velocity.y = ( Math.random() - 0.5 ) * 3;
+        // object.userData.velocity.z = ( Math.random() - 9 );
+        // object.userData.velocity.applyQuaternion( controller.quaternion );
 
-        if ( count === room.children.length ) count = 0;
+        // if ( count === room.children.length ) count = 0;
 
     }
 
@@ -268,71 +315,71 @@ function render() {
 
     const range = 3 - radius;
 
-    for ( let i = 0; i < room.children.length; i ++ ) {
+    // for ( let i = 0; i < room.children.length; i ++ ) {
 
-        const object = room.children[ i ];
+    //     const object = room.children[ i ];
 
-        object.position.x += object.userData.velocity.x * delta;
-        object.position.y += object.userData.velocity.y * delta;
-        object.position.z += object.userData.velocity.z * delta;
+    //     object.position.x += object.userData.velocity.x * delta;
+    //     object.position.y += object.userData.velocity.y * delta;
+    //     object.position.z += object.userData.velocity.z * delta;
 
-        // keep objects inside room
+    //     // keep objects inside room
 
-        if ( object.position.x < - range || object.position.x > range ) {
+    //     if ( object.position.x < - range || object.position.x > range ) {
 
-            object.position.x = THREE.MathUtils.clamp( object.position.x, - range, range );
-            object.userData.velocity.x = - object.userData.velocity.x;
+    //         object.position.x = THREE.MathUtils.clamp( object.position.x, - range, range );
+    //         object.userData.velocity.x = - object.userData.velocity.x;
 
-        }
+    //     }
 
-        if ( object.position.y < radius || object.position.y > 6 ) {
+    //     if ( object.position.y < radius || object.position.y > 6 ) {
 
-            object.position.y = Math.max( object.position.y, radius );
+    //         object.position.y = Math.max( object.position.y, radius );
 
-            object.userData.velocity.x *= 0.98;
-            object.userData.velocity.y = - object.userData.velocity.y * 0.8;
-            object.userData.velocity.z *= 0.98;
+    //         object.userData.velocity.x *= 0.98;
+    //         object.userData.velocity.y = - object.userData.velocity.y * 0.8;
+    //         object.userData.velocity.z *= 0.98;
 
-        }
+    //     }
 
-        if ( object.position.z < - range || object.position.z > range ) {
+    //     if ( object.position.z < - range || object.position.z > range ) {
 
-            object.position.z = THREE.MathUtils.clamp( object.position.z, - range, range );
-            object.userData.velocity.z = - object.userData.velocity.z;
+    //         object.position.z = THREE.MathUtils.clamp( object.position.z, - range, range );
+    //         object.userData.velocity.z = - object.userData.velocity.z;
 
-        }
+    //     }
 
-        for ( let j = i + 1; j < room.children.length; j ++ ) {
+    //     for ( let j = i + 1; j < room.children.length; j ++ ) {
 
-            const object2 = room.children[ j ];
+    //         const object2 = room.children[ j ];
 
-            normal.copy( object.position ).sub( object2.position );
+    //         normal.copy( object.position ).sub( object2.position );
 
-            const distance = normal.length();
+    //         const distance = normal.length();
 
-            if ( distance < 2 * radius ) {
+    //         if ( distance < 2 * radius ) {
 
-                normal.multiplyScalar( 0.5 * distance - radius );
+    //             normal.multiplyScalar( 0.5 * distance - radius );
 
-                object.position.sub( normal );
-                object2.position.add( normal );
+    //             object.position.sub( normal );
+    //             object2.position.add( normal );
 
-                normal.normalize();
+    //             normal.normalize();
 
-                relativeVelocity.copy( object.userData.velocity ).sub( object2.userData.velocity );
+    //             relativeVelocity.copy( object.userData.velocity ).sub( object2.userData.velocity );
 
-                normal = normal.multiplyScalar( relativeVelocity.dot( normal ) );
+    //             normal = normal.multiplyScalar( relativeVelocity.dot( normal ) );
 
-                object.userData.velocity.sub( normal );
-                object2.userData.velocity.add( normal );
+    //             object.userData.velocity.sub( normal );
+    //             object2.userData.velocity.add( normal );
 
-            }
+    //         }
 
-        }
+    //     }
 
-        object.userData.velocity.y -= 9.8 * delta;
+    //     object.userData.velocity.y -= 9.8 * delta;
 
-    }
+    // }
 
     // ********************************************************
 
