@@ -124,12 +124,12 @@ class Frontend:
             print('Backend connected')
 
             # Sets the GAZE_IN_SCREEN data stream rate to 125Hz
-            self._api.set_stream_control(adhawkapi.PacketType.GAZE_IN_SCREEN, 50, callback=(lambda *args: None))
+            self._api.set_stream_control(adhawkapi.PacketType.GAZE_IN_SCREEN, 25, callback=(lambda *args: None))
 
             # Tells the api which event streams we want to tap into, in this case the PROCEDURE_START_END stream
             self._api.set_event_control(adhawkapi.EventControlBit.PRODECURE_START_END, 1, callback=(lambda *args: None))
 
-            # self._api.set_event_control(adhawkapi.EventControlBit.BLINK, 1, callback=(lambda *_args: None))
+            self._api.set_event_control(adhawkapi.EventControlBit.BLINK, 1, callback=(lambda *_args: None))
 
             # Starts the tracker's camera so that video can be captured and sets self._handle_camera_start_response as
             # the callback. This function will be called once the api has finished starting the camera.

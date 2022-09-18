@@ -1,25 +1,19 @@
 <html>
     <head>
-        <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+        <!-- <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script> -->
+
     </head>
 
     <body>
-        <script src="index.js"></script>
+        <!-- <script src="index.js"></script> -->
 
-
+<!-- 
         <a-scene>
-            <!-- Camera and Motion Controllers -->
 			<a-entity id="camera-rig">
 				<a-entity id="camera" camera position="0 1.6 0" look-controls wasd-controls rotation="0 0 0" position-display camera-listener>
-					<!-- Text -->
 					<a-entity id="title-text" position="0 0.5 -3" text="align: center; value: Hello!; width: 6; side: double; color: black;"></a-entity>
                     <a-sphere id="gaze-tracker" position="0 0 -1" radius="0.01" color="#FF0000"></a-sphere>
-					<!-- <a-entity id="sub-text" position="0 1.25 -4" text="align: center; value: ; width: 5; side: double;" text-display></a-entity> -->
-					<!-- <a-entity visible="false" id="position-text" position="0 -3 -3" text="align: center; value: Rotation; width: 10; side: double;"></a-entity> -->
-					<!-- <a-entity visible="false" id="thumbstick-text" position="0 -3.5 -3" text="align: center; value: Thumbstick; width: 10; side: double;"></a-entity> -->
 				</a-entity>
-				<!-- <a-entity windows-motion-controls="hand: left" move ></a-entity>
-				<a-entity windows-motion-controls="hand: right" move id="rightHand" hand-controls="right" mixin="controller"></a-entity> -->
                 <a-entity oculus-touch-controls="hand: left"></a-entity>
                 <a-entity oculus-touch-controls="hand: right" right-hand></a-entity>
 			</a-entity>
@@ -29,31 +23,8 @@
             <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
             <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
             <a-sky color="#ECECEC"></a-sky>
-        </a-scene>
+        </a-scene> -->
         <!-- <script src="/socket.io/socket.io.js"></script> -->
-        <script src="js/three.js"></script>
-		<script>
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-            const renderer = new THREE.WebGLRenderer();
-            renderer.setSize( window.innerWidth, window.innerHeight );
-            document.body.appendChild( renderer.domElement );
-            
-            // Add cube to scene
-            const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-            const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-            const cube = new THREE.Mesh( geometry, material );
-            scene.add( cube );
-
-            camera.position.z = 5;
-
-            function animate() {
-                requestAnimationFrame( animate );
-                renderer.render( scene, camera );
-            }
-            animate();
-            
-		</script>
+        <script type="module" src="app.js"></script>
     </body>
 </html>
