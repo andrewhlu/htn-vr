@@ -7,7 +7,7 @@ let camera, scene, renderer;
 let controller1, controller2;
 let controllerGrip1, controllerGrip2;
 
-let room;
+let room, room2;
 
 let count = 0;
 const radius = 0.08;
@@ -15,8 +15,53 @@ let normal = new THREE.Vector3();
 const relativeVelocity = new THREE.Vector3();
 
 const clock = new THREE.Clock();
+let isRoom1 = true;
 
 init();
+
+const serverWs = new WebSocket("wss://116f-2620-101-f000-700-a857-7b6d-4b89-f2a9.ngrok.io/");
+
+serverWs.onopen = () => {
+    console.log("Server connection open!");
+
+    // titleText.setAttribute('text',3 {
+    //     value: "Connected!"
+    // });
+};
+
+serverWs.onmessage = (event) => {
+    // const titleText = document.querySelector('#title-text');
+    const data = JSON.parse(event.data);
+    // console.log("Server message:", data);
+
+    if (data.type === "gaze") {
+        // titleText.setAttribute('text', {
+        //     value: Math.round(data.x)
+        // }); 
+
+        // const gazeBall = document.querySelector('#gaze-tracker');
+        // gazeBall.setAttribute('position', `${data.x} ${data.y} -1`);
+    } else if (data.type === "blink") {
+        console.log("Blink event detected!");
+        isRoom1 = ! isRoom1;
+
+        if (isRoom1) {
+            // camera.position.set(0, 1.6, 3);
+            room.position.set( 0, 3, 0 );
+            room2.position.set( 10, 3, 0 );
+            console.log('in here');
+            // room.geometry.translate( -10, 3, 0 );
+            // room2.geometry.translate( 10, 3, 0 );
+        } else {
+            // camera.position.set(10, 1.6, 3);
+            room.position.set( 10, 3, 0 );
+            room2.position.set( 0, 3, 0 );
+            // room.geometry.translate( 10, 3, 0 );
+            // room2.geometry.translate( -10, 3, 0 );
+        };
+    }
+};
+
 animate();
 
 function init() {
@@ -32,9 +77,22 @@ function init() {
         new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ),
         new THREE.LineBasicMaterial( { color: 0x808080 } )
     );
-    room.geometry.translate( 0, 3, 0 );
+    // room.geometry.translate( 0, 3, 0 );
+    // room.geometry.translate( 0, 3, 0 );
     scene.add( room );
 
+    room2 = new THREE.LineSegments(
+        new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ),
+        new THREE.LineBasicMaterial( { color: 0x808080 } )
+    );
+    // room2.geometry.translate( 10, 3, 0 );
+
+    room.position.set( 0, 3, 0 );
+    room2.position.set( 10, 3, 0 );
+    
+    scene.add( room2 );
+
+    
     scene.add( new THREE.HemisphereLight( 0x606060, 0x404040 ) );
 
     const light = new THREE.DirectionalLight( 0xffffff );
